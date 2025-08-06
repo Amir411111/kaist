@@ -1,0 +1,77 @@
+"""
+Экран выбора персонажа
+"""
+
+import pygame
+from settings import *
+from utils import draw_text, create_character_sprite
+
+class CharacterSelectScreen:
+    def __init__(self):
+        self.selected_character = 1
+        self.characters = [
+            {"id": 1, "name": "Герой 1", "color": BLUE, "sprite": create_character_sprite(BLUE, "1")},
+            {"id": 2, "name": "Герой 2", "color": GREEN, "sprite": create_character_sprite(GREEN, "2")},
+            {"id": 3, "name": "Герой 3", "color": CYAN, "sprite": create_character_sprite(CYAN, "3")}
+        ]
+        
+        # Позиции персонажей
+        self.character_positions = [
+            (SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2),
+            (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2),
+            (3 * SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
+        ]
+    
+    def handle_input(self, events):
+        """
+        Обрабатывает ввод на экране выбора
+        """
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
+                    self.selected_character = max(1, self.selected_character - 1)
+                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
+                    self.selected_character = min(3, self.selected_character + 1)
+                elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
+                    return self.selected_character
+        
+        return None
+    
+    def draw(self, surface):
+        """
+        Отрисовывает экран выбора персонажа
+        """
+        # Фон
+        surface.fill(DARK_GRAY)
+        
+        # Заголовок
+        draw_text(surface, "ВЫБЕРИТЕ ПЕРСОНАЖА", 48, WHITE, SCREEN_WIDTH // 2, 100, center=True)
+        
+        # Отрисовка персонажей
+        for i, character in enumerate(self.characters):
+            x, y = self.character_positions[i]
+            
+            # Подсветка выбранного персонажа
+            if character["id"] == self.selected_character:
+                # Рамка вокруг выбранного персонажа
+                pygame.draw.rect(surface, YELLOW, (x - 40, y - 40, 80, 80), 4)
+            
+            # Спрайт персонажа
+            surface.blit(character["sprite"], (x - 16, y - 16))
+            
+            # Имя персонажа
+            draw_text(surface, character["name"], 24, WHITE, x, y + 50, center=True)
+        
+        # Инструкции
+        draw_text(surface, "Используйте стрелки для выбора", 20, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 150, center=True)
+        draw_text(surface, "Нажмите ENTER для подтверждения", 20, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 120, center=True)
+        
+        # Информация о персонажах
+        draw_text(surface, "Все персонажи имеют одинаковые способности", 18, LIGHT_GRAY, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 80, center=True)
+        draw_text(surface, "Различия только во внешности", 18, LIGHT_GRAY, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 60, center=True)
+    
+    def get_selected_character(self):
+        """
+        Возвращает ID выбранного персонажа
+        """
+        return self.selected_character 
