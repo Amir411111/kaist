@@ -96,19 +96,22 @@ class Boss:
         self.rect.x = self.x
         self.rect.y = self.y
         
-        # Проверка коллизий с платформами
+        # Проверка коллизий с платформами (только боковые)
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                # Коллизия слева
-                if self.direction > 0 and self.rect.right > platform.rect.left and self.rect.left < platform.rect.left:
-                    self.rect.right = platform.rect.left
-                    self.x = self.rect.x
-                    self.direction = -1
-                # Коллизия справа
-                elif self.direction < 0 and self.rect.left < platform.rect.right and self.rect.right > platform.rect.right:
-                    self.rect.left = platform.rect.right
-                    self.x = self.rect.x
-                    self.direction = 1
+                # Определяем с какой стороны произошла коллизия
+                if self.direction > 0:  # Движемся вправо
+                    # Коллизия с левой стороной платформы
+                    if self.rect.right > platform.rect.left:
+                        self.rect.right = platform.rect.left
+                        self.x = self.rect.x
+                        self.direction = -1
+                elif self.direction < 0:  # Движемся влево
+                    # Коллизия с правой стороной платформы
+                    if self.rect.left < platform.rect.right:
+                        self.rect.left = platform.rect.right
+                        self.x = self.rect.x
+                        self.direction = 1
         
         # Атака огненными шарами
         self.attack_timer += 1
@@ -160,20 +163,33 @@ class Boss:
         if not self.alive:
             return False
         
+        # Проверяем основную коллизию
+        if not player.rect.colliderect(self.rect):
+            return False
+        
+        # Определяем тип коллизии более точно
+        player_center_x = player.rect.centerx
+        player_bottom = player.rect.bottom
+        boss_top = self.rect.top
+        boss_center_x = self.rect.centerx
+        
         # Проверяем, прыгнул ли игрок на босса сверху
-        if (player.rect.bottom <= self.rect.top + 10 and 
-            player.vel_y > 0 and 
-            player.rect.right > self.rect.left and 
-            player.rect.left < self.rect.right):
+        vertical_overlap = player_bottom - boss_top
+        horizontal_distance = abs(player_center_x - boss_center_x)
+        
+        # Условия для успешной атаки прыжком:
+        # 1. Игрок падает вниз (vel_y > 0)
+        # 2. Небольшое вертикальное перекрытие (игрок почти сверху)
+        # 3. Игрок не слишком далеко по горизонтали
+        if (player.vel_y > 0 and 
+            vertical_overlap <= 20 and 
+            horizontal_distance <= self.width // 2 + 10):
             self.take_damage()
             player.vel_y = JUMP_SPEED // 2  # Отскок от босса
-            return True
+            return "damage_boss"  # Специальный код для атаки босса
         
         # Обычная коллизия (игрок получает урон)
-        if player.rect.colliderect(self.rect):
-            return True
-        
-        return False
+        return "damage_player"
     
     def draw(self, surface):
         """

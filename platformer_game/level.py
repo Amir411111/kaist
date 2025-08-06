@@ -36,6 +36,9 @@ class Level:
         self.boss = None
         self.background_color = None
         
+        # Таймер для первого уровня (автозавершение)
+        self.level_timer = 0
+        
         # Создаем уровень в зависимости от номера
         self.create_level()
     
@@ -83,10 +86,12 @@ class Level:
         self.platforms.append(Platform(250, SCREEN_HEIGHT - 200, 100, 20))
         self.platforms.append(Platform(450, SCREEN_HEIGHT - 250, 100, 20))
         
-        # Добавляем врагов
+        # Добавляем врагов (правильные границы платформ!)
         from enemy import Enemy
-        self.enemies.append(Enemy(250, SCREEN_HEIGHT - 250, 200, 350))
-        self.enemies.append(Enemy(450, SCREEN_HEIGHT - 300, 400, 550))
+        # Платформа 1: x=250-350, y=SCREEN_HEIGHT-200, враг на высоте -230
+        self.enemies.append(Enemy(260, SCREEN_HEIGHT - 230, 250, 340))
+        # Платформа 2: x=450-550, y=SCREEN_HEIGHT-250, враг на высоте -280  
+        self.enemies.append(Enemy(460, SCREEN_HEIGHT - 280, 450, 540))
     
     def create_level_3(self):
         """
@@ -113,16 +118,21 @@ class Level:
         # Обновляем врагов
         for enemy in self.enemies:
             enemy.update(self.platforms)
-            enemy.check_collision_with_player(player)
+            # Проверяем коллизии с игроком
+            collision_result = enemy.check_collision_with_player(player)
+            if collision_result == "player_damage" and not player.invulnerable:
+                player.take_damage()
+            # При "enemy_killed" урон врага уже нанесен в check_collision_with_player
         
         # Обновляем босса
         if self.boss:
             self.boss.update(self.platforms, player)
-            # Проверяем столкновение с боссом (возвращает True если игрок атакует босса)
-            boss_hit = self.boss.check_collision_with_player(player)
-            if not boss_hit and player.rect.colliderect(self.boss.rect) and not player.invulnerable:
-                # Если это не атака сверху, игрок получает урон
+            # Проверяем столкновение с боссом
+            collision_result = self.boss.check_collision_with_player(player)
+            if collision_result == "damage_player" and not player.invulnerable:
+                # Игрок получает урон от касания босса
                 player.take_damage()
+            # При "damage_boss" урон босса уже нанесен в check_collision_with_player
             
             # Проверяем столкновения с огненными шарами босса
             for fireball in self.boss.fireballs[:]:  # Копируем список для безопасного удаления
@@ -148,19 +158,33 @@ class Level:
         if self.boss:
             self.boss.draw(surface)
     
-    def is_completed(self, player=None):
+    def get_enemies(self):
+        """
+        Возвращает список врагов
+        """
+        return self.enemies
+    
+    def get_boss(self):
+        """
+        Возвращает босса
+        """
+        return self.boss
+    
+    def is_completed(self, player=None, timer=0):
         """
         Проверяет, завершен ли уровень
         """
         if self.level_number == LEVEL_1:
-            # Уровень 1 завершается, когда игрок дойдет до правого края экрана
+            # Уровень 1 завершается только когда игрок дойдет до правого края экрана
             if player and player.x >= SCREEN_WIDTH - 50:
                 return True
             return False
         
         elif self.level_number == LEVEL_2:
-            # Уровень 2 завершается, когда все враги побеждены
-            return all(not enemy.is_alive() for enemy in self.enemies)
+            # Уровень 2 завершается, когда все враги побеждены ИЛИ игрок дошел до правого края
+            all_enemies_dead = all(not enemy.is_alive() for enemy in self.enemies)
+            reached_end = player and player.x >= SCREEN_WIDTH - 50
+            return all_enemies_dead or reached_end
         
         elif self.level_number == LEVEL_3:
             # Уровень 3 завершается, когда босс побежден

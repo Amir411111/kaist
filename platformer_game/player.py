@@ -79,11 +79,7 @@ class Player:
                     self.x = self.rect.x
                     self.vel_x = 0
         
-        # Проверка коллизий с врагами
-        if enemies:
-            for enemy in enemies:
-                if self.rect.colliderect(enemy.rect) and not self.invulnerable:
-                    self.take_damage()
+        # Проверка коллизий с врагами убрана - обрабатывается в level.py
         
         # Проверка коллизий с боссом обрабатывается в level.py
         
@@ -147,6 +143,7 @@ class Player:
         if self.invulnerable and self.invulnerable_timer % 10 < 5:
             return
         
+        # Отрисовываем персонажа
         surface.blit(self.current_sprite, (self.x, self.y))
         
         # Отрисовка жизней

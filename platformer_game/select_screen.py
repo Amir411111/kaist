@@ -10,9 +10,9 @@ class CharacterSelectScreen:
     def __init__(self):
         self.selected_character = 1
         self.characters = [
-            {"id": 1, "name": "Герой 1", "color": BLUE, "sprite": create_character_sprite(BLUE, "1")},
-            {"id": 2, "name": "Герой 2", "color": GREEN, "sprite": create_character_sprite(GREEN, "2")},
-            {"id": 3, "name": "Герой 3", "color": CYAN, "sprite": create_character_sprite(CYAN, "3")}
+            {"id": 1, "name": "Героиня 1", "color": BLUE, "sprite": create_character_sprite(BLUE, "1")},
+            {"id": 2, "name": "Героиня 2", "color": GREEN, "sprite": create_character_sprite(GREEN, "2")},
+            {"id": 3, "name": "Героиня 3", "color": CYAN, "sprite": create_character_sprite(CYAN, "3")}
         ]
         
         # Позиции персонажей
@@ -21,20 +21,29 @@ class CharacterSelectScreen:
             (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2),
             (3 * SCREEN_WIDTH // 4, SCREEN_HEIGHT // 2)
         ]
+        
+        # Защита от спама нажатий
+        self.key_cooldown = 0
+        self.cooldown_time = 10  # кадров между нажатиями
     
-    def handle_input(self, events):
+    def handle_input(self, keys):
         """
         Обрабатывает ввод на экране выбора
         """
-        for event in events:
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                    self.selected_character = max(1, self.selected_character - 1)
-                elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                    self.selected_character = min(3, self.selected_character + 1)
-                elif event.key == pygame.K_RETURN or event.key == pygame.K_SPACE:
-                    return self.selected_character
-        
+        # Обновляем таймер кулдауна
+        if self.key_cooldown > 0:
+            self.key_cooldown -= 1
+            
+        # Обрабатываем нажатия только если кулдаун закончился
+        if self.key_cooldown == 0:
+            if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+                self.selected_character = max(1, self.selected_character - 1)
+                self.key_cooldown = self.cooldown_time
+            elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+                self.selected_character = min(3, self.selected_character + 1)
+                self.key_cooldown = self.cooldown_time
+            elif keys[pygame.K_RETURN] or keys[pygame.K_SPACE]:
+                return self.selected_character
         return None
     
     def draw(self, surface):
@@ -53,11 +62,14 @@ class CharacterSelectScreen:
             
             # Подсветка выбранного персонажа
             if character["id"] == self.selected_character:
-                # Рамка вокруг выбранного персонажа
-                pygame.draw.rect(surface, YELLOW, (x - 40, y - 40, 80, 80), 4)
+                # Рамка вокруг выбранного персонажа (подгоняем под новый размер)
+                frame_size = PLAYER_WIDTH + 20  # Рамка больше персонажа на 20 пикселей
+                frame_offset = frame_size // 2
+                pygame.draw.rect(surface, YELLOW, (x - frame_offset, y - frame_offset, frame_size, frame_size), 4)
             
-            # Спрайт персонажа
-            surface.blit(character["sprite"], (x - 16, y - 16))
+            # Спрайт персонажа (центрируем спрайт)
+            sprite_offset = PLAYER_WIDTH // 2  # 64 // 2 = 32
+            surface.blit(character["sprite"], (x - sprite_offset, y - sprite_offset))
             
             # Имя персонажа
             draw_text(surface, character["name"], 24, WHITE, x, y + 50, center=True)

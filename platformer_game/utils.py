@@ -67,33 +67,37 @@ def create_character_sprite(color, character_id="1"):
     """
     # Маппинг ID персонажей к файлам
     character_files = {
-        "1": "assets/characters/male_1.png",
-        "2": "assets/characters/male_2.png", 
-        "3": "assets/characters/male_3.jpg"
+        "1": "assets/characters/female_1.png",
+        "2": "assets/characters/female_2.png", 
+        "3": "assets/characters/female_3.png"
     }
     
     # Пытаемся загрузить изображение персонажа
     if character_id in character_files:
         character_path = character_files[character_id]
+        print(f"DEBUG: Loading character {character_id} from {character_path}")
         if os.path.exists(character_path):
             try:
                 image = pygame.image.load(character_path)
+                print(f"DEBUG: Original size: {image.get_size()}")
                 # Масштабируем изображение под размер игрока
                 image = pygame.transform.scale(image, (PLAYER_WIDTH, PLAYER_HEIGHT))
+                print(f"DEBUG: Scaled to: {PLAYER_WIDTH}x{PLAYER_HEIGHT}")
                 return image
-            except:
-                pass
+            except Exception as e:
+                print(f"DEBUG: Error loading image: {e}")
     
-    # Если не удалось загрузить - создаем заглушку как раньше
+    # Если не удалось загрузить - создаем яркую заглушку для отладки
+    print(f"DEBUG: Creating bright fallback sprite for character {character_id}")
     surface = pygame.Surface((PLAYER_WIDTH, PLAYER_HEIGHT))
-    surface.fill(color)
-    pygame.draw.rect(surface, BLACK, (0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), 2)
+    surface.fill(YELLOW)  # Яркий желтый для видимости
+    pygame.draw.rect(surface, RED, (0, 0, PLAYER_WIDTH, PLAYER_HEIGHT), 4)
     
-    if character_id:
-        font = pygame.font.Font(None, 20)
-        text_surface = font.render(character_id, True, WHITE)
-        text_rect = text_surface.get_rect(center=(PLAYER_WIDTH//2, PLAYER_HEIGHT//2))
-        surface.blit(text_surface, text_rect)
+    # Добавляем крупный текст
+    font = pygame.font.Font(None, 36)
+    text_surface = font.render(str(character_id), True, BLACK)
+    text_rect = text_surface.get_rect(center=(PLAYER_WIDTH//2, PLAYER_HEIGHT//2))
+    surface.blit(text_surface, text_rect)
     
     return surface
 

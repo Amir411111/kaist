@@ -22,11 +22,11 @@ class Game:
         self.current_level = 1
         self.player = None
         self.level = None
+        self.level_timer = 0  # Таймер для автозавершения уровня 1
         
         # Экран выбора персонажа
+        from select_screen import CharacterSelectScreen
         self.character_select = CharacterSelectScreen()
-        
-
         
         # Звуки (заглушки)
         self.sounds = {
@@ -41,6 +41,7 @@ class Game:
         Начинает новую игру
         """
         self.current_level = 1
+        self.level_timer = 0
         print(f"DEBUG: Starting new game with level {self.current_level}")
         self.player = Player(100, 300, self.selected_character)
         self.level = Level(self.current_level)
@@ -61,8 +62,12 @@ class Game:
             self.player.rect.x = self.player.x
             self.player.rect.y = self.player.y
             self.level = Level(self.current_level)
+            # Сбрасываем таймер уровня
+            self.level_timer = 0
+            print(f"DEBUG: Moved to level {self.current_level}")
         else:
             self.state = STATE_VICTORY
+            print("DEBUG: Game completed - Victory!")
     
     def game_over(self):
         """
@@ -96,13 +101,6 @@ class Game:
                     elif self.state == STATE_GAME_OVER or self.state == STATE_VICTORY:
                         self.restart_game()
         
-        # Обрабатываем выбор персонажа
-        if self.state == STATE_SELECT_CHARACTER:
-            selected = self.character_select.handle_input(events)
-            if selected:
-                self.selected_character = selected
-                self.start_new_game()
-        
         return True
     
     def update(self):
@@ -111,7 +109,14 @@ class Game:
         """
         keys = pygame.key.get_pressed()
         
-        if self.state == STATE_PLAYING:
+        # Обрабатываем выбор персонажа
+        if self.state == STATE_SELECT_CHARACTER:
+            selected = self.character_select.handle_input(keys)
+            if selected:
+                self.selected_character = selected
+                self.start_new_game()
+        
+        elif self.state == STATE_PLAYING:
             # Обновляем игрока
             self.player.handle_input(keys)
             self.player.update(self.level.platforms, self.level.get_enemies(), self.level.get_boss())
@@ -119,13 +124,16 @@ class Game:
             # Обновляем уровень
             self.level.update(self.player)
             
+            # Обновляем таймер уровня
+            self.level_timer += 1
+            
             # Проверяем, жив ли игрок
             if not self.player.is_alive():
                 self.game_over()
                 return
             
             # Проверяем завершение уровня
-            if self.level.is_completed(self.player):
+            if self.level.is_completed(self.player, self.level_timer):
                 self.next_level()
     
     def draw(self):
@@ -145,11 +153,20 @@ class Game:
             # Отрисовываем информацию об уровне
             draw_text(self.screen, f"Уровень {self.current_level}", 24, WHITE, 10, 10)
             
-            # Отрисовываем инструкции для первого уровня
-            if self.current_level == LEVEL_1:
-                draw_text(self.screen, "Используйте стрелки для движения", 18, WHITE, SCREEN_WIDTH // 2, 50, center=True)
-                draw_text(self.screen, "Пробел для прыжка", 18, WHITE, SCREEN_WIDTH // 2, 80, center=True)
-                draw_text(self.screen, "Дойдите до конца уровня для продолжения!", 18, WHITE, SCREEN_WIDTH // 2, 110, center=True)
+            # Инструкции для первого уровня
+            if self.current_level == 1:
+                draw_text(self.screen, "Дойдите до правого края экрана!", 18, YELLOW, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Используйте стрелки/WASD для движения", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+                draw_text(self.screen, "Пробел для прыжка", 16, WHITE, SCREEN_WIDTH // 2, 110, center=True)
+            
+            # Инструкции для других уровней
+            elif self.current_level == 2:
+                draw_text(self.screen, "Победите всех врагов ИЛИ дойдите до правого края!", 18, YELLOW, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Прыгайте на врагов сверху", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+            elif self.current_level == 3:
+                draw_text(self.screen, "Победите босса-бегемота!", 18, RED, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Прыгайте на босса сверху 3 раза", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+                draw_text(self.screen, "Избегайте огненных шаров", 16, WHITE, SCREEN_WIDTH // 2, 110, center=True)
         
         elif self.state == STATE_GAME_OVER:
             self.draw_game_over()

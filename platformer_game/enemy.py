@@ -40,8 +40,11 @@ class Enemy:
         self.vel_y += GRAVITY
         
         # Ограничение скорости падения
-        if self.vel_y > 20:
-            self.vel_y = 20
+        if self.vel_y > MAX_FALL_SPEED:
+            self.vel_y = MAX_FALL_SPEED
+        
+        # Сохраняем старую позицию для проверки края платформы
+        old_x = self.x
         
         # Движение по горизонтали
         self.x += self.vel_x * self.direction
@@ -53,6 +56,28 @@ class Enemy:
         elif self.x >= self.patrol_right:
             self.x = self.patrol_right
             self.direction = -1
+        
+        # Проверка края платформы - враг НЕ должен падать!
+        self.rect.x = self.x
+        self.rect.y = self.y
+        
+        # Проверяем, есть ли платформа под ногами врага в новой позиции
+        future_bottom_rect = pygame.Rect(
+            self.x + (self.width if self.direction > 0 else -5),  # Смотрим на край в направлении движения
+            self.y + self.height,  # Под ногами
+            5, 10  # Небольшой прямоугольник для проверки
+        )
+        
+        platform_found = False
+        for platform in platforms:
+            if future_bottom_rect.colliderect(platform.rect):
+                platform_found = True
+                break
+        
+        # Если платформы нет под ногами - разворачиваемся!
+        if not platform_found:
+            self.x = old_x  # Возвращаемся к старой позиции
+            self.direction *= -1  # Разворачиваемся
         
         # Обновление позиции по вертикали
         self.y += self.vel_y
@@ -97,25 +122,38 @@ class Enemy:
     
     def check_collision_with_player(self, player):
         """
-        Проверяет коллизию с игроком
+        Проверяет коллизию с игроком и возвращает тип коллизии
         """
         if not self.alive:
-            return False
+            return None
+        
+        # Проверяем основную коллизию
+        if not player.rect.colliderect(self.rect):
+            return None
+        
+        # Определяем тип коллизии более точно
+        player_center_x = player.rect.centerx
+        player_bottom = player.rect.bottom
+        enemy_top = self.rect.top
+        enemy_center_x = self.rect.centerx
         
         # Проверяем, прыгнул ли игрок на врага сверху
-        if (player.rect.bottom <= self.rect.top + 10 and 
-            player.vel_y > 0 and 
-            player.rect.right > self.rect.left and 
-            player.rect.left < self.rect.right):
+        vertical_overlap = player_bottom - enemy_top
+        horizontal_distance = abs(player_center_x - enemy_center_x)
+        
+        # Условия для успешной атаки прыжком:
+        # 1. Игрок падает вниз (vel_y > 0)
+        # 2. Небольшое вертикальное перекрытие (игрок почти сверху)
+        # 3. Игрок не слишком далеко по горизонтали
+        if (player.vel_y > 0 and 
+            vertical_overlap <= 15 and 
+            horizontal_distance <= self.width // 2 + 5):
             self.take_damage()
             player.vel_y = JUMP_SPEED // 2  # Отскок от врага
-            return True
+            return "enemy_killed"  # Успешная атака на врага
         
         # Обычная коллизия (игрок получает урон)
-        if player.rect.colliderect(self.rect):
-            return True
-        
-        return False
+        return "player_damage"
     
     def draw(self, surface):
         """

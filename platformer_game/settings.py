@@ -23,12 +23,13 @@ LIGHT_GRAY = (192, 192, 192)
 GRAVITY = 0.8
 JUMP_SPEED = -15
 PLAYER_SPEED = 5
+MAX_FALL_SPEED = 20  # Максимальная скорость падения
 ENEMY_SPEED = 2
 BOSS_SPEED = 1
 
 # Размеры объектов
-PLAYER_WIDTH = 32
-PLAYER_HEIGHT = 32
+PLAYER_WIDTH = 64  # Оптимальный размер - видимый, но не огромный
+PLAYER_HEIGHT = 64  # 64x64 пикселей
 ENEMY_WIDTH = 32
 ENEMY_HEIGHT = 32
 BOSS_WIDTH = 64
