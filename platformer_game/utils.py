@@ -112,17 +112,50 @@ def create_tile_sprite():
 
 def create_enemy_sprite():
     """
-    Создает спрайт врага
+    Создает спрайт врага, загружая изображение из файла
     """
+    enemy_path = "assets/enemies/enemy.png"
+    
+    # Пытаемся загрузить изображение врага
+    if os.path.exists(enemy_path):
+        try:
+            image = pygame.image.load(enemy_path)
+            # Масштабируем изображение под размер врага
+            image = pygame.transform.scale(image, (ENEMY_WIDTH, ENEMY_HEIGHT))
+            return image
+        except Exception as e:
+            print(f"DEBUG: Error loading enemy image: {e}")
+    
+    # Если не удалось загрузить - создаем заглушку
     surface = pygame.Surface((ENEMY_WIDTH, ENEMY_HEIGHT))
     surface.fill(RED)
     pygame.draw.rect(surface, BLACK, (0, 0, ENEMY_WIDTH, ENEMY_HEIGHT), 2)
+    
+    # Добавляем текст "ВРАГ"
+    font = pygame.font.Font(None, 20)
+    text_surface = font.render("ВРАГ", True, WHITE)
+    text_rect = text_surface.get_rect(center=(ENEMY_WIDTH//2, ENEMY_HEIGHT//2))
+    surface.blit(text_surface, text_rect)
+    
     return surface
 
 def create_boss_sprite():
     """
-    Создает спрайт босса
+    Создает спрайт босса, загружая изображение из файла
     """
+    boss_path = "assets/enemies/enemy.png"
+    
+    # Пытаемся загрузить изображение босса (используем ту же текстуру что и у врагов)
+    if os.path.exists(boss_path):
+        try:
+            image = pygame.image.load(boss_path)
+            # Масштабируем изображение под размер босса (64x64)
+            image = pygame.transform.scale(image, (BOSS_WIDTH, BOSS_HEIGHT))
+            return image
+        except Exception as e:
+            print(f"DEBUG: Error loading boss image: {e}")
+    
+    # Если не удалось загрузить - создаем заглушку
     surface = pygame.Surface((BOSS_WIDTH, BOSS_HEIGHT))
     surface.fill(MAGENTA)
     pygame.draw.rect(surface, BLACK, (0, 0, BOSS_WIDTH, BOSS_HEIGHT), 3)
