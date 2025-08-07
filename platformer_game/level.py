@@ -7,7 +7,10 @@ from settings import *
 from utils import create_tile_sprite
 from enemy import Enemy
 from boss import Boss
+<<<<<<< HEAD
 from captives import Captive
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
 
 class Platform:
     def __init__(self, x, y, width, height):
@@ -35,7 +38,10 @@ class Level:
         self.platforms = []
         self.enemies = []
         self.boss = None
+<<<<<<< HEAD
         self.captives = []  # Пленные персонажи
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         self.background_color = None
         
         # Таймер для первого уровня (автозавершение)
@@ -61,7 +67,11 @@ class Level:
     
     def create_level_1(self):
         """
+<<<<<<< HEAD
         Создает первый уровень (обучение с врагами)
+=======
+        Создает первый уровень (обучение)
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         """
         self.background_color = CYAN
         
@@ -72,6 +82,7 @@ class Level:
         self.platforms.append(Platform(200, SCREEN_HEIGHT - 200, 100, 20))
         self.platforms.append(Platform(400, SCREEN_HEIGHT - 250, 100, 20))
         self.platforms.append(Platform(600, SCREEN_HEIGHT - 300, 100, 20))
+<<<<<<< HEAD
         
         # Добавляем врагов на первый уровень
         from enemy import Enemy
@@ -79,6 +90,8 @@ class Level:
         self.enemies.append(Enemy(210, SCREEN_HEIGHT - 230, 200, 300))
         # Враг на второй платформе
         self.enemies.append(Enemy(410, SCREEN_HEIGHT - 280, 400, 500))
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     
     def create_level_2(self):
         """
@@ -101,6 +114,7 @@ class Level:
         self.enemies.append(Enemy(260, SCREEN_HEIGHT - 230, 250, 340))
         # Платформа 2: x=450-550, y=SCREEN_HEIGHT-250, враг на высоте -280  
         self.enemies.append(Enemy(460, SCREEN_HEIGHT - 280, 450, 540))
+<<<<<<< HEAD
         
         # Добавляем еще двух врагов на основные платформы
         
@@ -109,6 +123,12 @@ class Level:
     def create_level_3(self):
         """
         Создает третий уровень (битва с боссом и освобождение пленных)
+=======
+    
+    def create_level_3(self):
+        """
+        Создает третий уровень (битва с боссом)
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         """
         self.background_color = RED
         
@@ -120,6 +140,7 @@ class Level:
         self.platforms.append(Platform(550, SCREEN_HEIGHT - 200, 150, 20))
         self.platforms.append(Platform(300, SCREEN_HEIGHT - 300, 200, 20))
         
+<<<<<<< HEAD
         # Клетка с пленными персонажами (справа)
         self.platforms.append(Platform(650, SCREEN_HEIGHT - 150, 100, 50))
         
@@ -128,6 +149,8 @@ class Level:
         self.captives.append(Captive(690, SCREEN_HEIGHT - 140, 2))  # male_2
         self.captives.append(Captive(720, SCREEN_HEIGHT - 140, 3))  # male_3
         
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         # Добавляем босса
         from boss import Boss
         self.boss = Boss(SCREEN_WIDTH // 2 - BOSS_WIDTH // 2, SCREEN_HEIGHT - 200)
@@ -148,20 +171,32 @@ class Level:
         # Обновляем босса
         if self.boss:
             self.boss.update(self.platforms, player)
+<<<<<<< HEAD
             # Проверяем столкновение с боссом (только для атаки прыжком)
             collision_result = self.boss.check_collision_with_player(player)
             # При "damage_boss" урон босса уже нанесен в check_collision_with_player
             # Убираем урон от касания босса - теперь только от огненных шаров
+=======
+            # Проверяем столкновение с боссом
+            collision_result = self.boss.check_collision_with_player(player)
+            if collision_result == "damage_player" and not player.invulnerable:
+                # Игрок получает урон от касания босса
+                player.take_damage()
+            # При "damage_boss" урон босса уже нанесен в check_collision_with_player
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
             
             # Проверяем столкновения с огненными шарами босса
             for fireball in self.boss.fireballs[:]:  # Копируем список для безопасного удаления
                 if fireball.check_collision_with_player(player) and not player.invulnerable:
                     player.take_damage()
+<<<<<<< HEAD
         
         # Освобождаем пленных, если босс побежден
         if self.boss and not self.boss.is_alive():
             for captive in self.captives:
                 captive.free()
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     
     def draw(self, surface):
         """
@@ -181,6 +216,7 @@ class Level:
         # Отрисовываем босса
         if self.boss:
             self.boss.draw(surface)
+<<<<<<< HEAD
         
         # Отрисовываем пленных персонажей
         for captive in self.captives:
@@ -190,6 +226,8 @@ class Level:
                 from utils import draw_text
                 name = captive.names.get(captive.character_id, f"Hero {captive.character_id}")
                 draw_text(surface, name, 12, WHITE, captive.x + 16, captive.y - 10, center=True)
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     
     def get_enemies(self):
         """

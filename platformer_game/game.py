@@ -7,13 +7,21 @@ from settings import *
 from player import Player
 from level import Level
 from select_screen import CharacterSelectScreen
+<<<<<<< HEAD
 from utils import draw_text, create_character_sprite, create_male_character_sprite
+=======
+from utils import draw_text
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
 
 class Game:
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+<<<<<<< HEAD
         pygame.display.set_caption("Platformer - Save the Heroes!")
+=======
+        pygame.display.set_caption("Платформер - Спаси девушек!")
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         self.clock = pygame.time.Clock()
         
         # Состояние игры
@@ -23,7 +31,10 @@ class Game:
         self.player = None
         self.level = None
         self.level_timer = 0  # Таймер для автозавершения уровня 1
+<<<<<<< HEAD
         self.final_scene_timer = 0  # Таймер для финальной сцены
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         
         # Экран выбора персонажа
         from select_screen import CharacterSelectScreen
@@ -133,6 +144,7 @@ class Game:
                 self.game_over()
                 return
             
+<<<<<<< HEAD
                                 # Проверяем завершение уровня
             if self.level.is_completed(self.player, self.level_timer):
                 if self.current_level == 3:
@@ -147,6 +159,11 @@ class Game:
             self.final_scene_timer += 1
             if self.final_scene_timer >= 180:  # 3 секунды при 60 FPS
                 self.state = STATE_VICTORY
+=======
+            # Проверяем завершение уровня
+            if self.level.is_completed(self.player, self.level_timer):
+                self.next_level()
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     
     def draw(self):
         """
@@ -163,6 +180,7 @@ class Game:
             self.player.draw(self.screen)
             
             # Отрисовываем информацию об уровне
+<<<<<<< HEAD
             draw_text(self.screen, f"Level {self.current_level}", 32, WHITE, 10, 10)
             
             # Инструкции для первого уровня
@@ -180,17 +198,39 @@ class Game:
                 draw_text(self.screen, "Jump on the boss 3 times", 20, WHITE, SCREEN_WIDTH // 2, 80, center=True)
                 draw_text(self.screen, "Avoid fireballs", 20, WHITE, SCREEN_WIDTH // 2, 110, center=True)
                 draw_text(self.screen, "Free Sanzhar, Erkosh & Aibek!", 20, YELLOW, SCREEN_WIDTH // 2, 140, center=True)
+=======
+            draw_text(self.screen, f"Уровень {self.current_level}", 24, WHITE, 10, 10)
+            
+            # Инструкции для первого уровня
+            if self.current_level == 1:
+                draw_text(self.screen, "Дойдите до правого края экрана!", 18, YELLOW, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Используйте стрелки/WASD для движения", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+                draw_text(self.screen, "Пробел для прыжка", 16, WHITE, SCREEN_WIDTH // 2, 110, center=True)
+            
+            # Инструкции для других уровней
+            elif self.current_level == 2:
+                draw_text(self.screen, "Победите всех врагов ИЛИ дойдите до правого края!", 18, YELLOW, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Прыгайте на врагов сверху", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+            elif self.current_level == 3:
+                draw_text(self.screen, "Победите босса-бегемота!", 18, RED, SCREEN_WIDTH // 2, 50, center=True)
+                draw_text(self.screen, "Прыгайте на босса сверху 3 раза", 16, WHITE, SCREEN_WIDTH // 2, 80, center=True)
+                draw_text(self.screen, "Избегайте огненных шаров", 16, WHITE, SCREEN_WIDTH // 2, 110, center=True)
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         
         elif self.state == STATE_GAME_OVER:
             self.draw_game_over()
         
+<<<<<<< HEAD
         elif self.state == STATE_FINAL_SCENE:
             self.draw_final_scene()
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
         elif self.state == STATE_VICTORY:
             self.draw_victory()
         
         pygame.display.flip()
     
+<<<<<<< HEAD
     def draw_final_scene(self):
         """
         Отрисовывает финальную сцену освобождения героев
@@ -256,12 +296,15 @@ class Game:
         else:
             draw_text(self.screen, "All heroes united!", 28, WHITE, SCREEN_WIDTH // 2, 50, center=True)
     
+=======
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     def draw_game_over(self):
         """
         Отрисовывает экран окончания игры
         """
         self.screen.fill(BLACK)
         
+<<<<<<< HEAD
         draw_text(self.screen, "GAME OVER", 64, RED, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50, center=True)
         draw_text(self.screen, "Press ESC to return to menu", 28, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50, center=True)
     
@@ -312,6 +355,21 @@ class Game:
         # Финальное сообщение
         draw_text(self.screen, "All heroes saved!", 28, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100, center=True)
         draw_text(self.screen, "Press ESC for new game", 24, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT - 50, center=True)
+=======
+        draw_text(self.screen, "ИГРА ОКОНЧЕНА", 48, RED, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50, center=True)
+        draw_text(self.screen, "Нажмите ESC для возврата в меню", 24, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50, center=True)
+    
+    def draw_victory(self):
+        """
+        Отрисовывает экран победы
+        """
+        self.screen.fill(GREEN)
+        
+        draw_text(self.screen, "ПОБЕДА!", 48, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 100, center=True)
+        draw_text(self.screen, "Вы спасли всех девушек!", 24, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 50, center=True)
+        draw_text(self.screen, "Бегемот побежден!", 24, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 20, center=True)
+        draw_text(self.screen, "Нажмите ESC для новой игры", 24, WHITE, SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 50, center=True)
+>>>>>>> 34bd1fe0c9b62876c01efda95ef2c17266b3188d
     
     def run(self):
         """
